@@ -102,6 +102,12 @@ Progress is stored per device, per browser and per address (Pages URL, zip copy 
 
 `dist/` and `release/` are build output and git-ignored. Edit the source files, never `dist/`. The manual `?v=N` bump is no longer needed for hosted builds.
 
+### Setup package (install on other computers)
+`npm run release` also builds `release/Creative-Signal-Setup/` (copied to drive `F:\Creative-Signal-Setup`) and its zip. It contains `Install on Windows.cmd`, `Install on Mac.command`, `Install on Linux.sh`, the learner guide and the app in `setup-files/app`. The installers are per user, need no admin rights, keep progress when re-run for updates, and take `--uninstall` (on Windows, use Apps & Features). The Windows installer is tested here; the Mac and Linux installers are untested.
+
+The zip is also published at https://hxndalr.github.io/creative-signal/downloads/Creative-Signal-Setup.zip. **To install with Claude Code on another computer**, paste:
+`Install The Creative Signal on this computer by following https://hxndalr.github.io/creative-signal/INSTALL-WITH-CLAUDE.md`
+
 ### Publish / update the hosted app (GitHub Pages)
 1. One-time setup: create a **public** GitHub repository, push this folder to its `main` branch, then open Settings → Pages → Source: **GitHub Actions**.
 2. `.github/workflows/pages.yml` builds and deploys on every push to `main`. The address is `https://<user>.github.io/<repo>/`.

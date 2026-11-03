@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const dist = join(root, 'dist');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const SITE = 'https://hxndalr.github.io/creative-signal/';
 const INCLUDE = ['index.html', 'manifest.webmanifest', 'sw.js', 'LEARNER-GUIDE.html', 'assets', 'content', 'css', 'js'];
 const SKIP = /(^|[\\/])(desktop\.ini|Thumbs\.db|\.DS_Store)$|\.ico$/i;
 
@@ -67,4 +68,48 @@ if (process.argv.includes('--zip')) {
   }
   rmSync(stage, { recursive: true, force: true });
   console.log('Packed ' + relative(root, zip) + ' (' + Math.round(statSync(zip).size / 1024) + ' KB)');
+
+  /* Setup package: installers for Windows/macOS/Linux around the same app files.
+     release/Creative-Signal-Setup/ is the folder to copy to a drive; its zip is also published at
+     <site>/downloads/Creative-Signal-Setup.zip for INSTALL-WITH-CLAUDE.md. */
+  const setupName = 'Creative-Signal-Setup';
+  const setup = join(release, setupName);
+  const src = join(root, 'tools', 'setup');
+  rmSync(setup, { recursive: true, force: true });
+  mkdirSync(join(setup, 'setup-files'), { recursive: true });
+  cpSync(dist, join(setup, 'setup-files', 'app'), { recursive: true, filter: s => !s.endsWith('.nojekyll') });
+  cpSync(join(root, 'assets', 'brand', 'app-icon.ico'), join(setup, 'setup-files', 'app-icon.ico'));
+  const text = (file, eol) => readFileSync(join(src, file), 'utf8').replace(/\r?\n/g, eol);
+  writeFileSync(join(setup, 'setup-files', 'install-windows.ps1'), text('install-windows.ps1', '\r\n'));
+  writeFileSync(join(setup, 'Install on Windows.cmd'), text('Install on Windows.cmd', '\r\n'));
+  writeFileSync(join(setup, 'Install on Mac.command'), text('Install on Mac.command', '\n'), { mode: 0o755 });
+  writeFileSync(join(setup, 'Install on Linux.sh'), text('Install on Linux.sh', '\n'), { mode: 0o755 });
+  cpSync(join(root, 'LEARNER-GUIDE.html'), join(setup, 'LEARNER-GUIDE.html'));
+  writeFileSync(join(setup, 'Open the online version.url'), '[InternetShortcut]\r\nURL=' + SITE + '\r\n');
+  writeFileSync(join(setup, 'START HERE.txt'), [
+    "The Creative Signal: RS Hundal's AI Studio - setup (version " + version + ')',
+    '',
+    'INSTALL ON THIS COMPUTER (no admin rights needed):',
+    '  Windows : double-click "Install on Windows.cmd"',
+    '  Mac     : double-click "Install on Mac.command"  (if macOS blocks it: right-click > Open)',
+    '  Linux   : run   sh "Install on Linux.sh"',
+    'The app is copied to this computer and gets a "Creative Signal" shortcut. Run the installer again to update;',
+    'progress is kept. Each installer also takes --uninstall (Windows: Apps & Features).',
+    '',
+    'PHONES AND TABLETS: open ' + SITE + ' and install it from the browser (see LEARNER-GUIDE.html).',
+    'JUST TRY IT: open setup-files/app/index.html in a browser.',
+    ''
+  ].join('\r\n'));
+  const setupZip = join(release, setupName + '.zip');
+  rmSync(setupZip, { force: true });
+  if (process.platform === 'linux') execFileSync('zip', ['-rq', setupZip, setupName], { cwd: release });
+  else {
+    const tar = process.platform === 'win32' ? join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe') : 'tar';
+    execFileSync(tar, ['-a', '-c', '-f', setupName + '.zip', setupName], { cwd: release });
+  }
+  // Published with the site (after the precache list was written, so it isn't cached on every device).
+  mkdirSync(join(dist, 'downloads'), { recursive: true });
+  cpSync(setupZip, join(dist, 'downloads', setupName + '.zip'));
+  cpSync(join(root, 'INSTALL-WITH-CLAUDE.md'), join(dist, 'INSTALL-WITH-CLAUDE.md'));
+  console.log('Packed release/' + setupName + '/ and ' + setupName + '.zip (' + Math.round(statSync(setupZip).size / 1024) + ' KB), copied to dist/downloads/');
 }
