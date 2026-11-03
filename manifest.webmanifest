@@ -1,0 +1,19 @@
+{
+  "name": "The Creative Signal: RS Hundal's AI Studio",
+  "short_name": "Creative Signal",
+  "description": "AI Video, Visuals & Creative Production - the Level Up programme. Works offline; progress stays on this device.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0e0e0d",
+  "theme_color": "#0e0e0d",
+  "lang": "en",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/brand/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

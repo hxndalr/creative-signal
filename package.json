@@ -1,0 +1,12 @@
+{
+  "name": "creative-signal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Creative Signal: RS Hundal's AI Studio - offline, installable training app (Absolute Studios).",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "release": "node tools/build.mjs --zip",
+    "serve": "node tools/build.mjs && node tools/serve.mjs dist 5178"
+  },
+  "engines": { "node": ">=18" }
+}
